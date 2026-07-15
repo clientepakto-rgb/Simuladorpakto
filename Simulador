@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0A192F">
+<title>PAKTO · Simulador Operativo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800;900&display=swap');
+  :root { --azul:#0A192F; --naranja:#FF5722; --borde:#E5E9F0; --suave:#F5F8FC; }
+  * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+  body { font-family:'Montserrat','Roboto',system-ui,sans-serif; background:#fff; color:var(--azul); padding:16px 14px 48px; max-width:520px; margin:0 auto; }
+  header { display:flex; align-items:center; gap:10px; padding:6px 0 10px; }
+  .brand h1 { font-size:24px; font-weight:900; letter-spacing:-0.5px; line-height:1; }
+  .brand p { font-size:11px; font-weight:800; color:var(--naranja); }
+  .rule { height:4px; width:64px; background:var(--naranja); border-radius:99px; margin-bottom:14px; }
+  label { display:block; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:1.2px; opacity:.7; margin:12px 0 5px; }
+  select, input { width:100%; border:2px solid var(--borde); border-radius:12px; padding:11px 12px; font:inherit; font-weight:800; font-size:16px; color:var(--azul); background:#fff; }
+  input:focus, select:focus { outline:none; border-color:var(--azul); }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .niveles { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+  .niv { border:2px solid var(--borde); border-radius:10px; padding:7px 6px; text-align:center; background:#fff; font-weight:900; font-size:12px; cursor:pointer; }
+  .niv small { display:block; font-size:9px; font-weight:800; color:var(--naranja); margin-top:2px; }
+  .niv.on { border-color:var(--azul); background:var(--suave); }
+  .dot { display:inline-block; width:9px; height:9px; border-radius:99px; margin-right:3px; vertical-align:middle; }
+  .cards { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px; }
+  .card { border:2px solid var(--borde); border-radius:16px; padding:12px; }
+  .card.dark { background:var(--azul); color:#fff; border-color:var(--azul); }
+  .card .lbl { font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:1px; opacity:.65; }
+  .card .val { font-size:22px; font-weight:900; margin-top:3px; }
+  .card.dark .val { color:#FFB59B; }
+  .bloque { border:2px solid var(--borde); border-radius:16px; overflow:hidden; margin-top:14px; }
+  .bloque .head { background:var(--azul); color:#fff; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:1.2px; padding:9px 14px; }
+  .fila { display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-top:1px solid #EDF1F6; font-size:13px; font-weight:700; gap:8px; }
+  .fila:first-of-type { border-top:none; }
+  .fila b { font-weight:900; white-space:nowrap; }
+  .fila.admin { background:#FFF3EE; color:var(--naranja); }
+  .fila.admin small { display:block; font-size:9px; color:var(--azul); opacity:.7; font-weight:700; }
+  .fila.total { background:var(--suave); font-weight:900; font-size:14px; }
+  .termo { border:2px solid #C62828; border-radius:16px; padding:13px 14px; margin-top:14px; }
+  .termo.ok { border-color:#2E7D32; }
+  .badge { float:right; font-size:10px; font-weight:900; color:#fff; background:#C62828; border-radius:99px; padding:4px 10px; }
+  .termo.ok .badge { background:#2E7D32; }
+  .termo .tt { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:1px; opacity:.7; }
+  .tea { display:flex; justify-content:space-between; align-items:flex-end; margin-top:8px; }
+  .tea .big { font-size:24px; font-weight:900; color:#C62828; }
+  .termo.ok .tea .big { color:var(--azul); }
+  .barra { height:10px; background:#EDF1F6; border-radius:99px; margin-top:8px; overflow:hidden; }
+  .barra div { height:100%; background:#C62828; border-radius:99px; transition:width .3s; }
+  .termo.ok .barra div { background:#2E7D32; }
+  .nota { font-size:9.5px; font-weight:600; opacity:.6; margin-top:8px; line-height:1.5; }
+  .msg { background:#F0F7F1; border-radius:12px; padding:12px; font-size:12px; font-weight:600; white-space:pre-wrap; line-height:1.55; margin-top:8px; }
+  .btns { display:flex; gap:8px; margin-top:8px; }
+  .btn { flex:1; border:none; border-radius:99px; padding:11px; font:inherit; font-weight:900; font-size:12px; color:#fff; background:var(--naranja); cursor:pointer; text-align:center; text-decoration:none; }
+  .btn.wa { background:#25D366; }
+  .btn.copiado { background:#2E7D32; }
+  table { width:100%; border-collapse:collapse; font-size:12px; }
+  td { padding:7px 14px; border-top:1px solid #EDF1F6; font-weight:700; }
+  td:first-child { font-weight:900; width:28px; }
+  td:last-child { text-align:right; font-weight:900; color:var(--naranja); }
+  .usura { background:var(--suave); border-radius:14px; padding:11px 12px; margin-top:12px; }
+  .usura input { width:110px; display:inline-block; padding:7px 10px; font-size:17px; font-weight:900; }
+  .usura span { font-size:10px; font-weight:700; opacity:.7; margin-left:8px; }
+</style>
+</head>
+<body>
+<header>
+  <svg width="42" height="42" viewBox="0 0 48 48"><rect x="4" y="10" width="24" height="24" rx="7" fill="none" stroke="#0A192F" stroke-width="5"/><rect x="20" y="16" width="24" height="24" rx="7" fill="none" stroke="#FF5722" stroke-width="5"/></svg>
+  <div class="brand"><h1>PAKTO</h1><p>Vales lo que cumples.</p></div>
+</header>
+<div class="rule"></div>
+
+<label>Tipo cliente (nivel)</label>
+<div class="niveles" id="niveles"></div>
+<div id="nivelInfo" style="font-size:11px;font-weight:700;opacity:.7;margin-top:6px"></div>
+
+<div class="row">
+  <div><label>Préstamo ($)</label><input type="number" id="monto" step="50000" value="500000" inputmode="numeric"></div>
+  <div><label># Cuotas (semanas)</label><select id="cuotas"></select></div>
+</div>
+<div class="row">
+  <div><label>%TI declarado (N.M.V.)</label><input type="number" id="tiNMV" step="0.01" value="1.89" inputmode="decimal"></div>
+  <div><label>Fecha inicio crédito</label><input type="date" id="fecha"></div>
+</div>
+<div class="usura">
+  <label style="margin-top:0">Tope de usura vigente (% EA)</label>
+  <input type="number" id="tope" step="0.01" value="28.79" inputmode="decimal"><span>SFC · Julio 2026: 28,79% EA</span>
+</div>
+
+<div class="cards">
+  <div class="card dark"><div class="lbl">Cuota semanal</div><div class="val" id="rCuota">—</div></div>
+  <div class="card"><div class="lbl">VR final (P + TI% + Admin)</div><div class="val" id="rTotal">—</div></div>
+</div>
+
+<div class="bloque">
+  <div class="head">Desglose del pago (condiciones del préstamo)</div>
+  <div class="fila"><span>1️⃣ Devolución dinero prestado</span><b id="dCap">—</b></div>
+  <div class="fila"><span>2️⃣ Intereses (<span id="dTi">1,89</span>% N.M.V.)</span><b id="dInt">—</b></div>
+  <div class="fila admin"><span>3️⃣ Cuota de Administración Semanal<small id="dAdmSem">Servicios Tecnológicos y Administración Pakto</small></span><b id="dAdm">—</b></div>
+  <div class="fila total"><span>💰 Total a pagar</span><b id="dTot">—</b></div>
+</div>
+
+<div class="termo" id="termo">
+  <span class="badge" id="tBadge">SUPERA LA USURA</span>
+  <div class="tt">Termómetro legal (interés + administración)</div>
+  <div class="tea"><div><div style="font-size:10px;font-weight:700;opacity:.6">TEA real de todo el cobro</div><div class="big" id="tTea">—</div></div>
+  <div style="text-align:right"><div style="font-size:10px;font-weight:700;opacity:.6">Tope legal</div><div style="font-size:17px;font-weight:900" id="tTope">—</div></div></div>
+  <div class="barra"><div id="tBar" style="width:0%"></div></div>
+  <div class="nota">Para efectos legales, la cuota de administración y todo cobro asociado al crédito se suman al interés para calcular la tasa efectiva y compararla con el tope de usura (Art. 305 C.P.).</div>
+</div>
+
+<div class="bloque" style="border:none">
+  <label>Condiciones y aceptación</label>
+  <div class="msg" id="msgCond"></div>
+  <div class="btns">
+    <button class="btn" id="btnCopiarCond">Copiar</button>
+    <a class="btn wa" id="btnWaCond" target="_blank">Enviar por WhatsApp</a>
+  </div>
+</div>
+
+<div class="bloque" style="border:none">
+  <label>Oferta multi-cuota (4–16 semanas)</label>
+  <div class="msg" id="msgOferta"></div>
+  <div class="btns">
+    <button class="btn" id="btnCopiarOf">Copiar</button>
+    <a class="btn wa" id="btnWaOf" target="_blank">Enviar por WhatsApp</a>
+  </div>
+</div>
+
+<div class="bloque">
+  <div class="head" style="background:var(--suave);color:var(--azul)" id="planHead">Plan de pagos</div>
+  <table><tbody id="plan"></tbody></table>
+</div>
+
+<script>
+// %TI Variable semanal por nivel (hoja DATA del Excel)
+const NIVELES=[
+ {cod:"C1",nombre:"Bronce Semilla",ti:0.04,max:200000,color:"#8D6E63"},
+ {cod:"C2",nombre:"Bronce Cumplidor",ti:0.03538,max:300000,color:"#B87333"},
+ {cod:"C3",nombre:"Plata Amigo",ti:0.03076,max:500000,color:"#9AA5B1"},
+ {cod:"C4",nombre:"Plata Confianza",ti:0.02614,max:700000,color:"#7E8CA0"},
+ {cod:"C5",nombre:"Oro Socio",ti:0.02152,max:1000000,color:"#C9A227"},
+ {cod:"C6",nombre:"Oro Líder",ti:0.0169,max:1500000,color:"#E6B800"},
+ {cod:"CF1",nombre:"Embajador Diamante",ti:0.01228,max:2000000,color:"#5FC3D8"},
+ {cod:"CF2",nombre:"Embajador Diamante",ti:0.00997,max:3000000,color:"#4FB8CF"},
+ {cod:"CF3",nombre:"Embajador Diamante",ti:0.00766,max:4500000,color:"#3FADC6"},
+ {cod:"CF4",nombre:"Embajador Diamante",ti:0.00535,max:7000000,color:"#2FA2BD"},
+ {cod:"CF5",nombre:"Embajador Diamante",ti:0.00304,max:10000000,color:"#1F97B4"},
+];
+const DIAS=["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+const MESES=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+const $=id=>document.getElementById(id);
+const fmt=v=>"$"+Math.round(v).toLocaleString("es-CO");
+const pct=(v,d=2)=>(v*100).toFixed(d).replace(".",",")+"%";
+const ceil100=x=>Math.ceil(x/100)*100;                 // CEILING(x,100)
+const fF=d=>DIAS[d.getDay()]+" "+d.getDate()+" "+MESES[d.getMonth()]+" "+d.getFullYear();
+function tir(P,cuota,n){const vpn=r=>{let s=-P;for(let k=1;k<=n;k++)s+=cuota/Math.pow(1+r,k);return s};
+ if(vpn(0)<=0)return 0;let lo=0,hi=1;for(let i=0;i<80;i++){const m=(lo+hi)/2;vpn(m)>0?lo=m:hi=m}return(lo+hi)/2}
+
+let nivelCod="CF1", msgCond="", msgOf="";
+
+// UI: niveles y cuotas
+NIVELES.forEach(n=>{const b=document.createElement("button");b.className="niv";b.id="niv-"+n.cod;
+ b.innerHTML=`<span class="dot" style="background:${n.color}"></span>${n.cod}<small>${pct(n.ti,2)} sem</small>`;
+ b.onclick=()=>{nivelCod=n.cod;const m=+$("monto").value;if(m>n.max)$("monto").value=n.max;calc()};$("niveles").appendChild(b)});
+for(let k=4;k<=24;k++){const o=document.createElement("option");o.value=k;o.textContent=k+" semanas ("+(k/4).toFixed(k%4?2:0)+" meses)";$("cuotas").appendChild(o)}
+$("fecha").value=new Date().toISOString().slice(0,10);
+
+function calc(){
+ const niv=NIVELES.find(n=>n.cod===nivelCod);
+ document.querySelectorAll(".niv").forEach(b=>b.classList.toggle("on",b.id==="niv-"+nivelCod));
+ $("nivelInfo").textContent=niv.cod+" · "+niv.nombre+" · %TI semanal: "+pct(niv.ti,3)+" · Máx: "+fmt(niv.max);
+ const P=Math.max(0,+$("monto").value||0), n=+$("cuotas").value, tiNMV=(+$("tiNMV").value||0)/100, tope=(+$("tope").value||0)/100;
+ // ==== Fórmulas exactas del Excel ====
+ const vrFV=ceil100(P*Math.pow(1+niv.ti,n));   // C14
+ const cuota=ceil100(vrFV/n);                  // C9
+ const total=cuota*n;                          // C10
+ const intDecl=P*(tiNMV/4)*n;                  // C12
+ const admSem=(total-(P+intDecl))/n;           // C13 — Cuota de Administración
+ const teaReal=Math.pow(1+tir(P,cuota,n),52)-1;
+ const cumple=teaReal<=tope;
+ // Fechas
+ const ini=new Date($("fecha").value+"T00:00:00"), fin=new Date(ini); fin.setDate(fin.getDate()+n*7);
+ // Render
+ $("rCuota").textContent=fmt(cuota); $("rTotal").textContent=fmt(total);
+ $("dCap").textContent=fmt(P); $("dInt").textContent=fmt(intDecl);
+ $("dTi").textContent=(+$("tiNMV").value).toString().replace(".",",");
+ $("dAdm").textContent=fmt(admSem*n);
+ $("dAdmSem").textContent="Servicios Tecnológicos y Administración Pakto · "+fmt(admSem)+" × "+n+" semanas";
+ $("dTot").textContent=fmt(total);
+ $("termo").className="termo"+(cumple?" ok":"");
+ $("tBadge").textContent=cumple?"DENTRO DEL TOPE":"SUPERA LA TASA DE USURA";
+ $("tTea").textContent=pct(teaReal,1); $("tTope").textContent=pct(tope);
+ $("tBar").style.width=Math.min(100,(teaReal/tope)*100)+"%";
+ // Mensajes
+ msgCond="*✅CONDICIONES y ACEPTACIÓN PRÉSTAMO.* (Pago Semanal)\n*🙎‍♂️Cliente:* "+niv.cod+"-"+niv.nombre+
+  "\n*💲Préstamo:* "+fmt(P)+"\n*📉TI:* "+(+$("tiNMV").value).toString().replace(".",",")+"% (N.M.V)"+
+  "\n*⏳Plazo:* "+n+" Semanas\n*🗓️Fecha Inicio:* "+fF(ini)+"\n*🗓️Fecha Fin:* "+fF(fin)+
+  "\n*💵Cuota Semanal:* "+fmt(cuota)+"\n*💰Total a pagar:* "+fmt(total)+
+  "\n[Desglose pago: 1️⃣Devolución dinero prestado + 2️⃣Intereses ("+fmt(intDecl)+") + 3️⃣Servicios Tecnológicos y Administración Semanal Pakto ("+fmt(admSem)+")]"+
+  "\n\n⚠️Si estás de acuerdo con estas condiciones y declaras que tus fondos provienen de actividades licitas y te comprometes a pagar según lo pactado, responde: *ACEPTO*";
+ let of="Tenemos una *OFERTA DE PRESTAMO* para Usted en el siguiente nivel "+niv.cod+", El Monto máximo es de "+fmt(P)+", en diferentes cuotas (Usted decide):";
+ for(let k=4;k<=16;k++) of+="\n"+k+" x "+fmt(ceil100(ceil100(P*Math.pow(1+niv.ti,k))/k));
+ msgOf=of+"\nCon beneficios en tasa y cuotas";
+ $("msgCond").textContent=msgCond; $("msgOferta").textContent=msgOf;
+ $("btnWaCond").href="https://wa.me/?text="+encodeURIComponent(msgCond);
+ $("btnWaOf").href="https://wa.me/?text="+encodeURIComponent(msgOf);
+ // Plan de pagos
+ $("planHead").textContent="Plan de pagos · Día de cobro: "+DIAS[new Date(ini.getTime()+7*864e5).getDay()];
+ let rows="";
+ for(let k=1;k<=n;k++){const d=new Date(ini);d.setDate(d.getDate()+k*7);
+  rows+="<tr><td>"+k+"</td><td style='text-transform:capitalize'>"+fF(d)+"</td><td>"+fmt(cuota)+"</td></tr>"}
+ $("plan").innerHTML=rows;
+}
+function copiar(btn,txt){
+ const done=()=>{btn.classList.add("copiado");btn.textContent="¡Copiado!";setTimeout(()=>{btn.classList.remove("copiado");btn.textContent="Copiar"},1500)};
+ if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done).catch(()=>fallback(txt,done))}
+ else fallback(txt,done);
+ function fallback(t,cb){const a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);cb()}
+}
+$("btnCopiarCond").onclick=e=>copiar(e.target,msgCond);
+$("btnCopiarOf").onclick=e=>copiar(e.target,msgOf);
+["monto","cuotas","tiNMV","tope","fecha"].forEach(id=>$(id).addEventListener("input",calc));
+calc();
+</script>
+</body>
+</html>
